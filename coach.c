@@ -7,7 +7,7 @@
 #include "seat.h"
 
 Coach* createCoach(const uint16_t coach_no, const CoachType type, const uint8_t capacity) {
-    Coach* c = (Coach*)malloc(sizeof(Coach));
+    Coach* c = malloc(sizeof(Coach));
     if (!c) return NULL;
 
     c->coach_no = coach_no;

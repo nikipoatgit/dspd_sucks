@@ -44,7 +44,8 @@ struct Passenger {
 
     uint32_t ticket_id;
 
-    Passenger* next;
+    Passenger* next;     // for  ticket->passengerList
+    Passenger* gnext;     //for  global passenger list
 };
 
 

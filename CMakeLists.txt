@@ -12,4 +12,6 @@ add_executable(dspd main.c
         test.c
         struct.h
         booking.c
+        passenger.h
+        passenger.c
 )

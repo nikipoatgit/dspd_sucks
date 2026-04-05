@@ -5,10 +5,11 @@
 #ifndef BOOKING_H
 #define BOOKING_H
 
-
 #include "coach.h"
-// #include "ticket.h"
-// #include "waitlist.h"
+
+Seat* findSeatInAnyCoach(Coach* train, CoachType type,
+                          BerthType berth, Coach** outCoach);
+
 
 int bookSeats(Coach* train,
               CoachType type,

@@ -9,8 +9,8 @@
 #include "types.h"
 #include "struct.h"
 
-struct Coach* createCoach(uint16_t coach_no, CoachType type, uint8_t capacity);
-void appendCoach(struct Coach** head, struct Coach* newCoach);
-struct Coach* initCoaches();
+Coach* createCoach(uint16_t coach_no, CoachType type, uint8_t capacity);
+void appendCoach(Coach** head, Coach* newCoach);
+Coach* initCoaches();
 
 #endif // COACH_H
