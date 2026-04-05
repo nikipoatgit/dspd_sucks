@@ -1,187 +1,167 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+
 #include "booking.h"
 #include "coach.h"
 #include "passenger.h"
 #include "test.h"
 
-static uint32_t gNextTicketId = 1;
+static uint32_t ticketCounter = 1;
 
-static Ticket* issueTicket(void) {
-    Ticket* t = newTicket(gNextTicketId++);
+/* create ticket */
+Ticket* createNewTicket() {
+    Ticket* t = newTicket(ticketCounter++);
     appendTicket(t);
     return t;
 }
 
-static void separator(const char* title) {
-    printf("\n ----------------\n");
-    printf("  %s\n", title);
-    printf(" ----------------\n");
+/* take coach input */
+CoachType takeCoachInput() {
+    int ch;
+    printf("\nChoose Coach Type:\n");
+    printf("1. 1AC\n2. 2AC\n3. 3AC\n4. Sleeper\n");
+    printf("Enter choice: ");
+    scanf("%d", &ch);
+
+    if (ch == 1) return COACH_1AC;
+    if (ch == 2) return COACH_2AC;
+    if (ch == 3) return COACH_3AC;
+    if (ch == 4) return COACH_SL;
+
+    printf("Invalid choice, defaulting to 2AC\n");
+    return COACH_2AC;
 }
 
-int main(void) {
-    printf(" RAILWAY RESERVATION SYSTEM \n");
+/* take berth input */
+BerthType takeBerthInput() {
+    int b;
+    printf("Berth (1-L, 2-M, 3-U, 4-SL, 5-SU): ");
+    scanf("%d", &b);
 
+    if (b == 1) return BERTH_L;
+    if (b == 2) return BERTH_M;
+    if (b == 3) return BERTH_U;
+    if (b == 4) return BERTH_SL;
+    if (b == 5) return BERTH_SU;
+
+    return BERTH_L;
+}
+
+/* booking */
+void bookFlow(Coach* train) {
+    int n;
+    printf("\nEnter number of passengers: ");
+    scanf("%d", &n);
+
+    CoachType type = takeCoachInput();
+
+    char names[n][50];
+    char genders[n];
+    uint8_t ages[n];
+    char dobs[n][11];
+    BerthType pref[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("\nPassenger %d\n", i + 1);
+
+        printf("Name: ");
+        scanf("%s", names[i]);
+
+        printf("Gender: ");
+        scanf(" %c", &genders[i]);
+
+        printf("Age: ");
+        scanf("%hhu", &ages[i]);
+
+        printf("DOB: ");
+        scanf("%s", dobs[i]);
+
+        pref[i] = takeBerthInput();
+    }
+
+    Ticket* t = createNewTicket();
+    BerthList* list = createPref(pref, n);
+
+    int booked = bookSeats(train, type, list, t,
+                           names, genders, ages, dobs);
+
+    printf("\nBooked seats: %d\n", booked);
+    printf("Ticket ID: %u\n", t->ticket_id);
+}
+
+/* cancel */
+void cancelFlow(Coach* train) {
+    uint32_t id;
+    printf("\nEnter Ticket ID: ");
+    scanf("%u", &id);
+
+    int removed = cancelReservation(train, id, NULL, 0);
+    printf("Passengers removed: %d\n", removed);
+}
+
+/* display */
+void displayFlow(Coach* train) {
+    int ch;
+    printf("\nDisplay Menu\n");
+    printf("1. All passengers (name)\n");
+    printf("2. All passengers (coach)\n");
+    printf("3. Lower berth\n");
+    printf("4. Senior citizens not in lower\n");
+    printf("5. Available seats\n");
+    printf("6. Train map\n");
+    printf("Choice: ");
+    scanf("%d", &ch);
+
+    if (ch == 1) displayAllByName();
+    else if (ch == 2) displayAllByCoach();
+    else if (ch == 3) displayLowerBerth();
+    else if (ch == 4) displaySeniorNotLower();
+    else if (ch == 5) displayAvailableSeats(train);
+    else if (ch == 6) printTrain(train);
+    else printf("Invalid option\n");
+}
+
+/* main */
+int main() {
     Coach* train = initCoaches();
+    int choice;
 
-    /* ── BOOKING 1: 3 pax, 2AC, same coach (L M SL) ─────── */
-    separator("Booking 1: 3 pax in 2AC [L, M, SL] — same-coach path");
-    {
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_L, BERTH_M, BERTH_SL};
-        BerthList* prefs = createPref(ba, 3);
-        const char names[3][50] = {"Alice", "Bob", "Charlie"};
-        const char genders[3]   = {'F', 'M', 'M'};
-        const uint8_t ages[3]   = {28, 34, 65};
-        const char dobs[3][11]  = {"15/06/1997","20/03/1991","10/01/1960"};
+    printf("\nRailway Reservation System\n");
 
-        int n = bookSeats(train, COACH_2AC, prefs, t, names, genders, ages, dobs);
+    while (1) {
+        printf("\n-------------------------\n");
+        printf("1. Book Ticket\n");
+        printf("2. Cancel Ticket\n");
+        printf("3. Display\n");
+        printf("4. Reverse Train\n");
+        printf("5. Exit\n");
+        printf("-------------------------\n");
 
-        printf("  Booked: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
+        printf("Enter choice: ");
+        scanf("%d", &choice);
 
-    /* ── BOOKING 2: 2 pax, 3AC, U berths ────────────────── */
-    separator("Booking 2: 2 pax in 3AC [U, U]");
-    {
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_U, BERTH_U};
-        BerthList* prefs = createPref(ba, 2);
-        const char names[2][50] = {"Diana", "Eve"};
-        const char genders[2]   = {'F', 'F'};
-        const uint8_t ages[2]   = {45, 72};
-        const char dobs[2][11]  = {"05/09/1980","22/11/1953"};
-
-        int n = bookSeats(train, COACH_3AC, prefs, t, names, genders, ages, dobs);
-
-        printf("  Booked: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
-
-    /* ── BOOKING 3: 2 pax, SL, lower berths ─────────────── */
-    separator("Booking 3: 2 pax in SL [L, SL] — includes senior citizen");
-    {
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_L, BERTH_SL};
-        BerthList* prefs = createPref(ba, 2);
-        const char names[2][50] = {"Frank", "Grace"};
-        const char genders[2]   = {'M', 'F'};
-        const uint8_t ages[2]   = {62, 55};
-        const char dobs[2][11]  = {"01/01/1963","14/07/1970"};
-        int n = bookSeats(train, COACH_SL, prefs, t, names, genders, ages, dobs);
-        printf("  Booked: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
-
-    /* ── BOOKING 4: 1 pax, 1AC, M berth ─────────────────── */
-    separator("Booking 4: 1 pax in 1AC [M]");
-    {
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_M};
-        BerthList* prefs = createPref(ba, 1);
-        const char names[1][50] = {"Hank"};
-        const char genders[1]   = {'M'};
-        const uint8_t ages[1]   = {40};
-        const char dobs[1][11]  = {"30/08/1985"};
-        int n = bookSeats(train, COACH_1AC, prefs, t, names, genders, ages, dobs);
-        printf("  Booked: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
-
-    /* ── BOOKING 5: 3AC, senior on upper berth ───────────── */
-    separator("Booking 5: 3AC [U, SU] — senior Eve gets upper");
-    {
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_U, BERTH_SU};
-        BerthList* prefs = createPref(ba, 2);
-        const char names[2][50] = {"Ivan", "Judy"};
-        const char genders[2]   = {'M', 'F'};
-        const uint8_t ages[2]   = {68, 29};
-        const char dobs[2][11]  = {"03/03/1957","11/11/1996"};
-        int n = bookSeats(train, COACH_3AC, prefs, t, names, genders, ages, dobs);
-        printf("  Booked: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
-
-    /* ══ DISPLAY FUNCTIONS ═════════════════════════════════ */
-    displayAllByName();
-    displayAllByCoach();
-    displayLowerBerth();
-    displaySeniorNotLower();
-    displayAvailableSeats(train);
-
-    /* ══ SORT: passengers in coach 2AC by name ════════════ */
-    separator("Coach 2AC passengers — sorted by name");
-    {
-        Passenger* sorted = sortByNameInCoach(NULL, 101);
-        Passenger* p = sorted;
-        while (p) {
-            printf("  %-20s | Seat:%2d | Berth:%s\n",
-                   p->name, p->seat_no,
-                   p->berth==BERTH_L?"L": p->berth==BERTH_M?"M":
-                   p->berth==BERTH_U?"U": p->berth==BERTH_SL?"SL":"SU");
-            p = p->gnext;
+        if (choice == 1) {
+            bookFlow(train);
         }
-        restoreGlobalAfterCoachSort();  /* repair gnext chain */
-    }
-
-    /* ══ CANCELLATION: partial — remove Bob from ticket 1 ═ */
-    separator("Partial cancellation: remove Bob (seat 2) from ticket #1");
-    {
-        uint8_t seats[] = {2};
-        int n = cancelReservation(train, 1, seats, 1);
-        printf("  Passengers removed: %d\n", n);
-    }
-
-    /* ══ CANCELLATION: entire ticket 3 ════════════════════ */
-    separator("Full cancellation: cancel entire ticket #3");
-    {
-        int n = cancelReservation(train, 3, NULL, 0);
-        printf("  Passengers removed: %d\n", n);
-    }
-
-    displayAllByCoach();
-    displayAvailableSeats(train);
-
-    /* ══ WAITLIST: fill 1AC completely then try to book ═══ */
-    separator("Waitlist demo: fill all 1AC seats, then attempt booking");
-    {
-        Coach* c = train;
-        while (c && c->type != COACH_1AC) c = c->next;
-        if (c) {
-            Seat* s = c->seatList;
-            while (s) { if (!s->isBooked) s->isBooked = 1; s = s->next; }
-            printf("  (All 1AC seats manually filled)\n");
+        else if (choice == 2) {
+            cancelFlow(train);
         }
-        Ticket* t = issueTicket();
-        BerthType ba[] = {BERTH_L};
-        BerthList* prefs = createPref(ba, 1);
-        const char names[1][50] = {"Zara"};
-        const char genders[1]   = {'F'};
-        const uint8_t ages[1]   = {27};
-        const char dobs[1][11]  = {"15/05/1999"};
-        int n = bookSeats(train, COACH_1AC, prefs, t, names, genders, ages, dobs);
-        printf("  Seats booked immediately: %d  (Ticket #%u)\n", n, t->ticket_id);
-    }
-
-    /* ══ REVERSE COACH ORDER ══════════════════════════════ */
-    separator("Reversing coach order");
-    reverseTrainOrder(&train);
-
-    printf("\n══ Train after reversal ════════════════════════════════\n");
-    printf("  Expected: ENGINE → SL → 3AC → 2AC → PANTRY → 1AC\n\n");
-    {
-        Coach* c = train;
-        while (c) {
-            printf("  [%s #%d]\n",
-                   c->type==COACH_ENGINE?"ENGINE":
-                   c->type==COACH_1AC?"1AC":
-                   c->type==COACH_2AC?"2AC":
-                   c->type==COACH_3AC?"3AC":
-                   c->type==COACH_SL?"SL":"PANTRY",
-                   c->coach_no);
-            c = c->next;
+        else if (choice == 3) {
+            displayFlow(train);
+        }
+        else if (choice == 4) {
+            reverseTrainOrder(&train);
+            printf("Train order reversed\n");
+        }
+        else if (choice == 5) {
+            printf("Exiting...\n");
+            break;
+        }
+        else {
+            printf("Wrong choice, try again\n");
         }
     }
 
-    printf("\n══ Full train seat map ═════════════════════════════════\n");
-    printTrain(train);
-
-    printf("\n[DONE]\n");
     return 0;
 }
