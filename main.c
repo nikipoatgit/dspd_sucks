@@ -241,12 +241,127 @@ static void displayFlow(Coach* train) {
         case 6: printTrain(train);            break;
     }
 }
+void loadTestPassengers(Coach *train) {
 
+    /* ---------- 1AC ---------- */
+    Ticket *t1 = newTicket(1001);
+    appendTicket(t1);
+
+    char names1[3][NAME_LEN] = {
+        "Arjun Rao",
+        "Meera Iyer",
+        "Kabir Khan"
+    };
+
+    char genders1[] = {'M','F','M'};
+    uint8_t ages1[] = {52, 28, 34};
+
+    char dobs1[3][DOB_LEN] = {
+        "14/02/1973",
+        "22/07/1997",
+        "10/10/1991"
+    };
+
+    BerthType pref1[] = {BERTH_L, BERTH_U, BERTH_L};
+    BerthList *list1 = createPref(pref1, 3);
+
+    bookSeats(train, COACH_1AC, list1, t1,
+              names1, genders1, ages1, dobs1);
+
+
+    /* ---------- 2AC ---------- */
+    Ticket *t2 = newTicket(1002);
+    appendTicket(t2);
+
+    char names2[4][NAME_LEN] = {
+        "Rohan Sharma",
+        "Sneha Patil",
+        "Aditya Verma",
+        "Pooja Singh"
+    };
+
+    char genders2[] = {'M','F','M','F'};
+    uint8_t ages2[] = {40, 25, 31, 29};
+
+    char dobs2[4][DOB_LEN] = {
+        "05/06/1985",
+        "11/09/2000",
+        "18/03/1994",
+        "27/12/1996"
+    };
+
+    BerthType pref2[] = {BERTH_M, BERTH_L, BERTH_U, BERTH_SL};
+    BerthList *list2 = createPref(pref2, 4);
+
+    bookSeats(train, COACH_2AC, list2, t2,
+              names2, genders2, ages2, dobs2);
+
+
+    /* ---------- 3AC ---------- */
+    Ticket *t3 = newTicket(1003);
+    appendTicket(t3);
+
+    char names3[3][NAME_LEN] = {
+        "Vikram Joshi",
+        "Ananya Das",
+        "Rahul Nair"
+    };
+
+    char genders3[] = {'M','F','M'};
+    uint8_t ages3[] = {60, 21, 38};
+
+    char dobs3[3][DOB_LEN] = {
+        "01/01/1965",
+        "15/08/2004",
+        "09/04/1987"
+    };
+
+    BerthType pref3[] = {BERTH_L, BERTH_SU, BERTH_M};
+    BerthList *list3 = createPref(pref3, 3);
+
+    bookSeats(train, COACH_3AC, list3, t3,
+              names3, genders3, ages3, dobs3);
+
+
+    /* ---------- Sleeper ---------- */
+    Ticket *t4 = newTicket(1004);
+    appendTicket(t4);
+
+    char names4[5][NAME_LEN] = {
+        "Deepak Yadav",
+        "Kavya Reddy",
+        "Manoj Kumar",
+        "Sita Devi",
+        "Old Passenger"
+    };
+
+    char genders4[] = {'M','F','M','F','M'};
+    uint8_t ages4[] = {26, 33, 47, 65, 75};
+
+    char dobs4[5][DOB_LEN] = {
+        "12/11/1999",
+        "03/03/1992",
+        "19/07/1978",
+        "01/01/1960",
+        "01/01/1950"
+    };
+
+    BerthType pref4[] = {
+        BERTH_SL, BERTH_SU, BERTH_M, BERTH_L, BERTH_L
+    };
+
+    BerthList *list4 = createPref(pref4, 5);
+
+    bookSeats(train, COACH_SL, list4, t4,
+              names4, genders4, ages4, dobs4);
+}
 
 int main(void) {
     Coach* train = initCoaches();
 
     printf("\n=== Railway Reservation System ===\n");
+
+    loadTestPassengers(train);
 
     while (1) {
         int choice = readInt(

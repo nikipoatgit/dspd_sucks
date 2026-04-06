@@ -18,7 +18,6 @@ Waitlist*  gWaitlist      = NULL;
 
 static uint32_t gNextWaitlistNo = 1;
 
-/* ================= GLOBAL PASSENGER ================= */
 
 void appendPassengerGlobal(Passenger* p) {
     if (!p) return;
@@ -52,8 +51,6 @@ void removePassengerGlobal(Passenger* p) {
     }
 }
 
-/* ================= TICKET ================= */
-
 Ticket* newTicket(uint32_t ticket_id) {
     Ticket* t = calloc(1, sizeof(Ticket));
     if (!t) return NULL;
@@ -82,7 +79,6 @@ void appendTicket(Ticket* t) {
     cur->next = t;
 }
 
-/* ================= WAITLIST ================= */
 
 static BerthList* cloneBerthList(BerthList* src) {
     BerthList *head = NULL, *tail = NULL;
@@ -128,8 +124,6 @@ uint32_t addToWaitlist(CoachType type, BerthList* prefs,
     return wlNo;
 }
 
-/* ================= MERGE SORT ================= */
-
 static Passenger* split(Passenger* head) {
     Passenger *slow = head, *fast = head->gnext;
 
@@ -167,18 +161,15 @@ Passenger* sortAllByName(Passenger* head) {
     return merge(left, right);
 }
 
-/* ================= SORT WRAPPERS ================= */
 
 void sortGlobalByName(void) {
     gPassengerList = sortAllByName(gPassengerList);
 
-    // rebuild tail (O(n), unavoidable)
     gPassengerTail = gPassengerList;
     while (gPassengerTail && gPassengerTail->gnext)
         gPassengerTail = gPassengerTail->gnext;
 }
 
-/* ================= DISPLAY ================= */
 
 static const char* berthStr(BerthType b) {
     static const char* map[] = {"L","M","U","SL","SU"};
@@ -200,7 +191,6 @@ void displayAllByName(void) {
         printPassenger(p);
 }
 
-/* ================= CANCEL ================= */
 
 static Seat* findSeatByNo(Coach* train, uint16_t coach_no, uint8_t seat_no) {
     for (Coach* c = train; c; c = c->next)
@@ -256,7 +246,6 @@ int cancelReservation(Coach* train,
 void displayAllByCoach(void) {
     printf("\n=== Passengers (Coach → Seat) ===\n");
 
-    // reuse existing qsort version if needed OR skip sorting
     for (Passenger* p = gPassengerList; p; p = p->gnext)
         printf("%s | C:%d S:%d\n", p->name, p->coach_no, p->seat_no);
 }
