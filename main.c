@@ -37,6 +37,24 @@ static int readInt(const char *prompt, int lo, int hi) {
     }
 }
 
+void reverseTrainOrder(Coach** head) {
+    if (!head || !(*head) || !(*head)->next) return;
+
+    Coach* engine = *head;        // keep engine fixed
+    Coach* curr = engine->next;   // start after engine
+
+    Coach* prev = NULL;
+    Coach* next = NULL;
+
+    while (curr) {
+        next = curr->next;   // store next node
+        curr->next = prev;   // reverse link
+        prev = curr;         // move prev
+        curr = next;         // move curr
+    }
+
+    engine->next = prev;     // attach reversed list
+}
 
 static void readString(const char *prompt, char *buf, int maxLen) {
     while (1) {
