@@ -71,13 +71,14 @@ int bookSeats(Coach* train,
     {
         Coach* curr = train;
         while (curr) {
+            //chk for coach satisfying
             if (curr->type == type && canCoachSatisfy(curr, prefs)) {
                 int got = allocateSeatsInCoach(curr, prefs, ticket,
                                                names, genders, ages, dobs);
-                /* sync newly added passengers to global list */
+
                 Passenger* cur2 = ticket->passengerList;
-                int skip = count;
-                for (int i = 0; i < skip && cur2; i++) cur2 = cur2->next;
+                // int skip = count;
+                // for (int i = 0; i < skip && cur2; i++) cur2 = cur2->next;
                 while (cur2) { appendPassengerGlobal(cur2); cur2 = cur2->next; }
                 return got;
             }
